@@ -1,7 +1,7 @@
-let promisify = function(original, after) {
-  return function(...originalArgs) {
-    return new Promise(function(resolve, reject) {
-      let callback = function(...callbackArgs) {
+let promisify = (original, after) => {
+  return (...originalArgs) => {
+    return new Promise((resolve, reject) => {
+      let callback = (...callbackArgs) => {
         resolve(...callbackArgs)
       }
 
@@ -14,13 +14,16 @@ let promisify = function(original, after) {
   }
 }
 
-chrome.browserAction.onClicked.addListener(async function () {
+chrome.browserAction.onClicked.addListener(async () => {
   let tabs = await promisify(chrome.tabs.query)({
     active: true,
     currentWindow: true
   })
   let tab = tabs[0]
   let scriptExec = promisify(chrome.tabs.executeScript, rs => rs[0]);
+  let alert = (message) => {
+    scriptExec({ code: `window.alert(${JSON.stringify(message)})` })
+  }
   let options = await promisify(chrome.storage.sync.get)({
     developerMode: false
   });
@@ -31,41 +34,38 @@ chrome.browserAction.onClicked.addListener(async function () {
   }
 
   let windowSelection = await scriptExec({ code: "window.getSelection().toString()" })
-  j.q = windowSelection;
+  j.q = windowSelection
   let title = await scriptExec({ code: "document.title" })
-  if (title) j.t = title;
+  if (title) j.t = title
 
-  let extractionScript = function() {
-    var j = { bi: [] }
-    var extractor = function (tag_name, hash_key) {
-      j[hash_key] = Array.prototype.map.call(document.querySelectorAll(tag_name), function(el) {
+  let extractionScript = () => {
+    var result = {}
+    var extractor = (tag_name, hash_key) => {
+      result[hash_key] = Array.prototype.map.call(document.querySelectorAll(tag_name), (el) => {
                       return el.src;
-                    });
-    };
+                    })
+    }
 
-    extractor("img", "i");
-    extractor("video", "vi");
-    extractor("iframe", "ifr");
-    extractor("audio", "au");
+    extractor("img", "i")
+    extractor("video", "vi")
+    extractor("iframe", "ifr")
+    extractor("audio", "au")
 
-    Array.prototype.forEach.call(document.querySelectorAll("*"), function(el) {
-      var bi = window.getComputedStyle(el).backgroundImage;
-      if (bi && bi.match(/url\(.*\)/)) {
-        j.bi.push(bi);
-      }
-    });
-    return j
+    result.bi = Array.prototype.map.call(document.querySelectorAll("*"), (el) => {
+      window.getComputedStyle(el).backgroundImage
+    }).filter((bi) => { bi && bi.match(/url\(.*\)/) })
+    return result
   };
   let extracted = await scriptExec({ code: "(" + extractionScript.toString() + ")()" });
   j = Object.assign(j, extracted)
-  console.log(j);
 
   let url = options.developerMode ? "http://mokum.dev:3000/sh" : "https://mokum.place/sh"
+  console.log(`Pushing to ${url}`, j);
   let request = new XMLHttpRequest()
   try {
     request.open('POST', url, true)
   } catch (e) {
-    window.alert(location.host + " disallows bookmarklets on its site, use extension")
+    alert(location.host + " disallows bookmarklets on its site, use extension")
   }
 
   request.setRequestHeader('Content-Type', 'application/json');
@@ -76,12 +76,12 @@ chrome.browserAction.onClicked.addListener(async function () {
         url: request.responseText
       })
     } else {
-      window.alert("HTTP " + request.statusText);
+      alert("HTTP " + request.statusText);
     }
   };
 
   request.onerror = function() {
-    window.alert("Network error");
+    alert('Network error');
   };
 
   request.send(JSON.stringify(j));
