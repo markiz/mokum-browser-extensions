@@ -7,7 +7,7 @@
     "default_icon": "icon-32.png"
   },
   "icons": {
-    "128": "icon-32.png"
+    "128": "icon-128.png"
   },
   "background": {
     "scripts": [
