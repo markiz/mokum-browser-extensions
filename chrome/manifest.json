@@ -8,7 +8,7 @@
   },
   "name": "Mokum share extension",
   "description": "Shares current page to mokum",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "browser_action": {
     "default_icon": "icon-32.png"
   },
@@ -21,7 +21,10 @@
     ],
     "persistent": false
   },
-  "options_page": "options.html",
+  "options_ui": {
+    "page": "options.html",
+    "chrome_style": true
+  },
   "permissions": [
     "activeTab",
     "storage",
