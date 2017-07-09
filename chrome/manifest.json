@@ -1,0 +1,25 @@
+{
+  "manifest_version": 2,
+  "name": "Mokum share extension",
+  "description": "Shares current page to mokum",
+  "version": "1.0",
+  "browser_action": {
+    "default_icon": "icon-32.png"
+  },
+  "icons": {
+    "128": "icon-32.png"
+  },
+  "background": {
+    "scripts": [
+      "share.js"
+    ],
+    "persistent": false
+  },
+  "options_page": "options.html",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "https://*.mokum.place/",
+    "http://*.mokum.dev/"
+  ]
+}

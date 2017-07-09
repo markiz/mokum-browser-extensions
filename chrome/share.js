@@ -1,0 +1,88 @@
+let promisify = function(original, after) {
+  return function(...originalArgs) {
+    return new Promise(function(resolve, reject) {
+      let callback = function(...callbackArgs) {
+        resolve(...callbackArgs)
+      }
+
+      try {
+        original(...originalArgs.concat([callback]))
+      } catch(e) {
+        reject(e)
+      }
+    }).then(after)
+  }
+}
+
+chrome.browserAction.onClicked.addListener(async function () {
+  let tabs = await promisify(chrome.tabs.query)({
+    active: true,
+    currentWindow: true
+  })
+  let tab = tabs[0]
+  let scriptExec = promisify(chrome.tabs.executeScript, rs => rs[0]);
+  let options = await promisify(chrome.storage.sync.get)({
+    developerMode: false
+  });
+  var j = {
+    v: 3,
+    u: tab.url,
+    bi: []
+  }
+
+  let windowSelection = await scriptExec({ code: "window.getSelection().toString()" })
+  j.q = windowSelection;
+  let title = await scriptExec({ code: "document.title" })
+  if (title) j.t = title;
+
+  let extractionScript = function() {
+    var j = { bi: [] }
+    var extractor = function (tag_name, hash_key) {
+      j[hash_key] = Array.prototype.map.call(document.querySelectorAll(tag_name), function(el) {
+                      return el.src;
+                    });
+    };
+
+    extractor("img", "i");
+    extractor("video", "vi");
+    extractor("iframe", "ifr");
+    extractor("audio", "au");
+
+    Array.prototype.forEach.call(document.querySelectorAll("*"), function(el) {
+      var bi = window.getComputedStyle(el).backgroundImage;
+      if (bi && bi.match(/url\(.*\)/)) {
+        j.bi.push(bi);
+      }
+    });
+    return j
+  };
+  let extracted = await scriptExec({ code: "(" + extractionScript.toString() + ")()" });
+  j = Object.assign(j, extracted)
+  console.log(j);
+
+  let url = options.developerMode ? "http://mokum.dev:3000/sh" : "https://mokum.place/sh"
+  let request = new XMLHttpRequest()
+  try {
+    request.open('POST', url, true)
+  } catch (e) {
+    window.alert(location.host + " disallows bookmarklets on its site, use extension")
+  }
+
+  request.setRequestHeader('Content-Type', 'application/json');
+
+  request.onload = function() {
+    if (request.status == 201) {
+      chrome.tabs.update({
+        url: request.responseText
+      })
+    } else {
+      window.alert("HTTP " + request.statusText);
+    }
+  };
+
+  request.onerror = function() {
+    window.alert("Network error");
+  };
+
+  request.send(JSON.stringify(j));
+});
