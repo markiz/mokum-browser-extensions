@@ -1,5 +1,10 @@
 {
   "manifest_version": 2,
+  "applications": {
+    "gecko": {
+      "id": "{9fba0156-5353-4de0-8d2e-be1b0d9ed590}"
+    }
+  },
   "name": "Mokum share extension",
   "description": "Shares current page to mokum",
   "version": "1.0",
