@@ -41,9 +41,8 @@ chrome.browserAction.onClicked.addListener(async () => {
   let extractionScript = () => {
     var result = {}
     var extractor = (tag_name, hash_key) => {
-      result[hash_key] = Array.prototype.map.call(document.querySelectorAll(tag_name), (el) => {
-                      return el.src;
-                    })
+      let tags = Array.prototype.slice.call(document.querySelectorAll(tag_name));
+      result[hash_key] = tags.map((el) => el.src).filter((src) => src && src.length < 2048 && !src.match(/^data:/))
     }
 
     extractor("img", "i")
