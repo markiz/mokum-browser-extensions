@@ -75,7 +75,7 @@ chrome.browserAction.onClicked.addListener(async () => {
         url: request.responseText
       })
     } else {
-      alert("HTTP " + request.statusText);
+      alert(`HTTP ${request.status}`);
     }
   };
 
