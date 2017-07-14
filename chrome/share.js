@@ -34,9 +34,9 @@ chrome.browserAction.onClicked.addListener(async () => {
   }
 
   let windowSelection = await scriptExec({ code: "window.getSelection().toString()" })
-  j.q = windowSelection
+  j.q = windowSelection.slice(0, 2048)
   let title = await scriptExec({ code: "document.title" })
-  if (title) j.t = title
+  if (title) j.t = title.slice(0, 2048)
 
   let extractionScript = () => {
     var result = {}
