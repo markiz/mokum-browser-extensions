@@ -8,7 +8,7 @@
   },
   "name": "Mokum share extension",
   "description": "Shares current page to mokum",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "browser_action": {
     "default_icon": "icon-32.png"
   },
@@ -29,6 +29,8 @@
     "activeTab",
     "storage",
     "https://*.mokum.place/",
-    "http://*.mokum.dev/"
+    "http://*.mokum.dev/",
+    "http://*.mok.um/",
+    "https://*.mok.um/"
   ]
 }
