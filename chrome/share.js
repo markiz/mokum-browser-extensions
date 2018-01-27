@@ -41,13 +41,13 @@ chrome.browserAction.onClicked.addListener(async () => {
   let extractionScript = () => {
     var extractor = (tagName, attrName) => {
       let tags = Array.prototype.slice.call(document.querySelectorAll(tagName))
-      return tags.map((el) => el[attrName]).filter((attr) => attr && attr.length < 8192 && !attr.match(/^data:/))
+      return tags.map((el) => el[attrName]).filter((attr) => attr && attr.length < 8192 && !attr.match(/^data:/)).slice(0, 100)
     }
 
 
     let bgImgs = Array.prototype.map.call(document.querySelectorAll("*"), (el) => {
       window.getComputedStyle(el).backgroundImage
-    }).filter((bi) => { bi && bi.match(/url\(.*\)/) })
+    }).filter((bi) => { bi && bi.match(/url\(.*\)/) }).slice(0, 100)
 
     return {
       i: extractor("img", "src"),
