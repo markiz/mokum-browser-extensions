@@ -15,16 +15,16 @@ let promisify = (original, after) => {
 }
 
 chrome.browserAction.onClicked.addListener(async () => {
-  let tabs = await promisify(chrome.tabs.query)({
+  let tabs = await promisify(chrome.tabs.query.bind(chrome.tabs))({
     active: true,
     currentWindow: true
   })
   let tab = tabs[0]
-  let scriptExec = promisify(chrome.tabs.executeScript, rs => rs[0])
+  let scriptExec = promisify(chrome.tabs.executeScript.bind(chrome.tabs), rs => rs[0])
   let alert = (message) => {
     scriptExec({ code: `window.alert(${JSON.stringify(message)})` })
   }
-  let options = await promisify(chrome.storage.sync.get)({
+  let options = await promisify(chrome.storage.sync.get.bind(chrome.storage.sync))({
     developerMode: false
   })
   var j = {
